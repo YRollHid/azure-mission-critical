@@ -4,7 +4,7 @@ parameters:
   jobName: '' # name for each build job - needs to be unique within a given stage/pipeline
 
 jobs:
-- job: 'helm.${{ parameters.jobName }}'
+- job: 'helm_${{ parameters.jobName }}'
   displayName: 'Package helm chart ${{ parameters.jobName }}'
   steps:
 
