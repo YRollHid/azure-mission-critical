@@ -2,7 +2,7 @@ apiVersion: "v2"
 appVersion: 0.0.7
 name: backgroundprocessor
 description: "background processor worker"
-version: 0.1.0 # semver update only major and minor here - the buildid is used for patch
+version: 0.0.7
 sources:
 - https://github.com/Azure/Mission-Critical
 kubeVersion: ">=1.23.0"

@@ -30,31 +30,40 @@ jobs:
         echo "*** DEBUG: Entering Working Directory: ${{ parameters.workingDirectory }}"
         cd ${{ parameters.workingDirectory }}
 
+        # check if chartname (equals directory name) exists in working directory
         if ((Test-Path "${{ parameters.chartName}}") -ne $true) {
           throw "*** Error - ${{ parameters.chartName }} does not exist in ${{ parameters.workingDirectory }}"
         }
 
         # Login to ACR so we can later push to it
-        az acr login -n $(acr_name)
+        USERNAME="00000000-0000-0000-0000-000000000000"
+        PASSWORD=$(az acr login -n $(acr_name) --expose-token --output tsv --query accessToken)
+
+        helm registry login $(acr_name).azurecr.io \
+          --username $USERNAME \
+          --password $PASSWORD
 
         if ($LastExitCode -ne 0) {
           throw "*** Error - could not log in to ACR $(acr_name)"
         }
 
+        # parse version number from helm chart Chart.yaml file
         $chartVersion=helm show chart ${{ parameters.chartName}}/ | grep ^version | cut -d' ' -f2
         echo "*** Current version for ${{ parameters.chartName }} is $chartVersion"
 
         # this splits the $chartVersion read from Chart.yaml into its components: major, minor, patch
         $semVer=[System.Management.Automation.SemanticVersion]::Parse($chartVersion)   
         
-        # this builds a semVer version with attached buildid
+        # this builds a semVer version with attached buildid <major>.<minor>.<patch>.build.<buildid>
         $targetChartVersion=[System.Management.Automation.SemanticVersion]::New($($semVer.Major),$($semVer.Minor),$($semVer.Patch),"build",$(Build.BuildId))
 
+        # package helm chart in tar.gz format
         echo "*** Package helm chart ${{ parameters.chartName }} with version $targetChartVersion"
         helm package ${{ parameters.chartName }} --version $targetChartVersion
 
+        # push helm chart to the azure container registry
         echo "*** Pushing helm chart ${{ parameters.chartName }} to ACR $(acr_name)"
-        az acr helm push -n $(acr_name) ${{ parameters.chartName }}-$targetChartVersion.tgz
+        helm push ${{ parameters.chartName }}-$targetChartVersion.tgz oci://$(acr_name).azurecr.io/helm
 
         # Write image name to file so we can publish it
         Set-Content -Value $targetChartVersion -Path "${{ parameters.jobName }}.txt"
