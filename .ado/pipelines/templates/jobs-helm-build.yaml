@@ -38,10 +38,7 @@ jobs:
         # Login to ACR so we can later push to it
         $USERNAME="00000000-0000-0000-0000-000000000000"
         $PASSWORD=az acr login -n $(acr_name) --expose-token --output tsv --query accessToken
-
-        helm registry login $(acr_name).azurecr.io \
-          --username $USERNAME \
-          --password $PASSWORD
+        helm registry login $(acr_name).azurecr.io --username $USERNAME --password $PASSWORD
 
         if ($LastExitCode -ne 0) {
           throw "*** Error - could not log in to ACR $(acr_name)"
