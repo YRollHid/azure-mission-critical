@@ -50,10 +50,10 @@ jobs:
         helm package ${{ parameters.chartName }} --version $targetChartVersion
 
         echo "*** Pushing helm chart ${{ parameters.chartName }} to ACR $(acr_name)"
-        az acr helm push -n $(acr_name) ${{ parameters.chartName }}-$(targetChartVersion).tgz
+        az acr helm push -n $(acr_name) ${{ parameters.chartName }}-$targetChartVersion.tgz
 
         # Write image name to file so we can publish it
-        Set-Content -Value $(targetChartVersion) -Path "${{ parameters.jobName }}.txt"
+        Set-Content -Value $targetChartVersion -Path "${{ parameters.jobName }}.txt"
 
   - publish:  '${{ parameters.workingDirectory }}/${{ parameters.jobName }}.txt'
     artifact: '${{ parameters.jobName }}-helmChartName' # artifact name
