@@ -1,0 +1,61 @@
+parameters:
+  chartName: '' # chart name e.g. catalogservice (foldername in workingDirectory)
+  workingDirectory: 'src/app/charts'
+  jobName: '' # name for each build job - needs to be unique within a given stage/pipeline
+
+jobs:
+- job: ${{ parameters.jobName }}
+  displayName: 'Package helm chart ${{ parameters.jobName }}'
+  steps:
+
+  - download: current # download pipeline artifacts
+
+  - template: steps-buildagent-prerequisites.yaml
+
+  - template: steps-parse-terraform-output.yaml # parse global configuration settings from terraform deployment output
+    parameters:
+      workingDirectory: '$(Pipeline.Workspace)/terraformOutputGlobalInfra'  # Global infra deploy output directory
+
+  - task: AzureCLI@2
+    displayName: 'Helm package and push ${{ parameters.chartName }}'
+    retryCountOnTaskFailure: 1
+    inputs:
+      azureSubscription: $(azureServiceConnection)
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+
+        echo "*** Retrieved Azure Container Registry Login Server $(acr_login_server) from Terraform deployment output"
+
+        echo "*** DEBUG: Entering Working Directory: ${{ parameters.workingDirectory }}"
+        cd ${{ parameters.workingDirectory }}
+
+        if (Test-Path "${{ parameters.chartName}}/") {
+          throw "*** Error - ${{ parameters.chartName }}/ does not exist in ${{ parameters.workingDirectory }}"
+        }
+
+        # Login to ACR so we can later push to it
+        az acr login -n $(acr_name)
+
+        if ($LastExitCode -ne 0) {
+          throw "*** Error - could not log in to ACR $(acr_name)"
+        }
+
+        $chartVersion=helm show chart ${{ parameters.chartName}}/ | grep ^version | cut -d' ' -f2
+        echo "*** Current version for ${{ parameters.chartName }} is $chartVersion"
+
+        $targetChartVersion=$chartVersion + "." + $(Build.BuildId)
+
+        echo "*** Package helm chart ${{ parameters.chartName }} with version $targetChartVersion"
+        helm package ${{ parameters.chartName }} --version $targetChartVersion
+
+        echo "*** Pushing helm chart ${{ parameters.chartName }} to ACR $(acr_name)"
+        az acr helm push -n $(acr_name) ${{ parameters.chartName }}-$(targetChartVersion).tgz
+
+        # Write image name to file so we can publish it
+        Set-Content -Value $(targetChartVersion) -Path "${{ parameters.jobName }}.txt"
+
+  - publish:  '${{ parameters.workingDirectory }}/${{ parameters.jobName }}.txt'
+    artifact: '${{ parameters.jobName }}-helmChartName' # artifact name
+    condition: succeeded()
+    displayName: 'Publish helm chart name'

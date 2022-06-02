@@ -221,6 +221,11 @@ stages:
       containerImageName:       '$(catalogserviceImageName)'  # container image name for CatalogService
       containerImageDockerFile: '$(catalogserviceDockerfile)' # dockerfile used to build the CatalogService
 
+  - template: jobs-helm-build.yaml
+    parameters:
+      jobName:   'catalogservice' # unique pipeline job name
+      chartName: 'catalogservice' # chartname for catalogservice
+
   - template: jobs-container-build.yaml
     parameters:
       jobName:                  'backgroundprocessor' # unique pipeline job name
