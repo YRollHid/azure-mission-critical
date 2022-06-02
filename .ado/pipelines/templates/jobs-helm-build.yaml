@@ -45,10 +45,10 @@ jobs:
         echo "*** Current version for ${{ parameters.chartName }} is $chartVersion"
 
         # this splits the $chartVersion read from Chart.yaml into its components: major, minor, patch
-        $semVer=($chartVersion).split(".")
+        $semVer=[System.Management.Automation.SemanticVersion]::Parse($chartVersion)   
         
         # this builds a semVer version with attached buildid
-        $targetChartVersion=[System.Management.Automation.SemanticVersion]::New($semVer[0],$semVer[1],"build",$(Build.BuildId))
+        $targetChartVersion=[System.Management.Automation.SemanticVersion]::New($($semVer.Major),$($semVer.Minor),$($semVer.Patch),"build",$(Build.BuildId))
 
         echo "*** Package helm chart ${{ parameters.chartName }} with version $targetChartVersion"
         helm package ${{ parameters.chartName }} --version $targetChartVersion
