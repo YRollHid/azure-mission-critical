@@ -30,8 +30,8 @@ jobs:
         echo "*** DEBUG: Entering Working Directory: ${{ parameters.workingDirectory }}"
         cd ${{ parameters.workingDirectory }}
 
-        if (Test-Path "${{ parameters.chartName}}/") {
-          throw "*** Error - ${{ parameters.chartName }}/ does not exist in ${{ parameters.workingDirectory }}"
+        if ((Test-Path "${{ parameters.chartName}}") -ne $true) {
+          throw "*** Error - ${{ parameters.chartName }} does not exist in ${{ parameters.workingDirectory }}"
         }
 
         # Login to ACR so we can later push to it
