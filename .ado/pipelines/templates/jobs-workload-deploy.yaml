@@ -121,13 +121,15 @@ jobs: # using jobs so they each run in parallel
             $fqdn = $stamp.aks_cluster_ingress_fqdn
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
 
+            # retrieve the container image name and tag from pipeline artifacts
             $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/catalogservice.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
 
+            # retrieve helm chart version from pipeline artifact
             $helmChartVersion = Get-Content -Path "$(Pipeline.Workspace)/helmCharts/catalogservice.txt"
             echo "*** Retrieved helm chart version from artifact - $helmChartVersion"
 
-            # Apply workload CatalogService helm chart
+            # apply workload CatalogService helm chart
             echo "*** Deploy workload CatalogService to $aksClusterName (in $aksClusterResourceGroup) via helm chart"
             echo "*** Using container image $fullContainerImageName"
 

@@ -68,6 +68,6 @@ jobs:
         Set-Content -Value $targetChartVersion -Path "${{ parameters.jobName }}.txt"
 
   - publish:  '${{ parameters.workingDirectory }}/${{ parameters.jobName }}.txt'
-    artifact: 'helmCharts/${{ parameters.jobName }}.txt' # artifact name
+    artifact: 'helmCharts'
     condition: succeeded()
     displayName: 'Publish helm chart name'
