@@ -21,7 +21,6 @@ jobs: # using jobs so they each run in parallel
         scriptLocation: inlineScript
         inlineScript: |
 
-          helm lint src/app/charts/healthservice # lint helm chart
 
           # load json data from downloaded terraform artifact
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
@@ -38,7 +37,7 @@ jobs: # using jobs so they each run in parallel
             echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
             az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/healthservice-containerImageName/healthservice.txt"
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/healthservice.txt"
             echo "*** Retrieved container image name from artifact - $fullContainerImageName"
 
             $fqdn = $stamp.aks_cluster_ingress_fqdn
@@ -102,8 +101,6 @@ jobs: # using jobs so they each run in parallel
         scriptLocation: inlineScript
         inlineScript: |
 
-          helm lint src/app/charts/catalogservice # lint helm chart
-
           # load json data from downloaded terraform artifact
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
 
@@ -124,14 +121,18 @@ jobs: # using jobs so they each run in parallel
             $fqdn = $stamp.aks_cluster_ingress_fqdn
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
 
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/catalogservice-containerImageName/catalogservice.txt"
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/catalogservice.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
+
+            $helmChartVersion = Get-Content -Path "$(Pipeline.Workspace)/helmCharts/catalogservice.txt"
+            echo "*** Retrieved helm chart version from artifact - $helmChartVersion"
 
             # Apply workload CatalogService helm chart
             echo "*** Deploy workload CatalogService to $aksClusterName (in $aksClusterResourceGroup) via helm chart"
             echo "*** Using container image $fullContainerImageName"
 
-            helm upgrade --install workload-catalogservice src/app/charts/catalogservice `
+            helm upgrade --install workload-catalogservice oci://$(acr_name).azurecr.io/helm/catalogservice `
+                         --version $helmChartVersion `
                          --namespace "$(workloadNamespace)" `
                          --create-namespace `
                          --set azure.frontdoorid="$(frontdoor_id_header)" `
@@ -159,8 +160,6 @@ jobs: # using jobs so they each run in parallel
         scriptLocation: inlineScript
         inlineScript: |
 
-          helm lint src/app/charts/backgroundprocessor # lint helm chart
-
           # load json data from downloaded terraform artifact
           $releaseUnitInfraDeployOutput = Get-ChildItem $(Pipeline.Workspace)/terraformOutputReleaseUnitInfra/*.json | Get-Content | ConvertFrom-JSON
 
@@ -178,8 +177,10 @@ jobs: # using jobs so they each run in parallel
             echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
             az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/backgroundprocessor-containerImageName/backgroundprocessor.txt"
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/backgroundprocessor.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
+
+            # get helm chart version from the previous build step (stored in pipeline artifacts)
 
             # Apply workload BackgroundProcessor helm chart
             echo  "*** Deploy workload BackgroundProcessor to $aksClusterName (in $aksClusterResourceGroup) via helm chart"
