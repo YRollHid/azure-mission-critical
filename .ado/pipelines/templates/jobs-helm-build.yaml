@@ -33,7 +33,7 @@ jobs:
 
         helm template ${{ parameters.chartName }} > "${{ parameters.chartName}}.temp.yaml"
 
-        ./kubeaudit "${{ parameters.chartName}}.temp.yaml"
+        ./kubeaudit all -f "${{ parameters.chartName}}.temp.yaml"
 
 
   - task: AzureCLI@2
