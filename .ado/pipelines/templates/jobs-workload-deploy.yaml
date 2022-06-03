@@ -37,7 +37,7 @@ jobs: # using jobs so they each run in parallel
             echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
             az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/healthservice.txt"
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages-healthservice/healthservice.txt"
             echo "*** Retrieved container image name from artifact - $fullContainerImageName"
 
             $fqdn = $stamp.aks_cluster_ingress_fqdn
@@ -122,11 +122,11 @@ jobs: # using jobs so they each run in parallel
             echo "*** Retrieved Ingress Controller FQDN $fqdn for AKS cluster $aksClusterName"
 
             # retrieve the container image name and tag from pipeline artifacts
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/catalogservice.txt"
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages-catalogservice/catalogservice.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
 
             # retrieve helm chart version from pipeline artifact
-            $helmChartVersion = Get-Content -Path "$(Pipeline.Workspace)/helmCharts/catalogservice.txt"
+            $helmChartVersion = Get-Content -Path "$(Pipeline.Workspace)/helmCharts-catalogservice/catalogservice.txt"
             echo "*** Retrieved helm chart version from artifact - $helmChartVersion"
 
             # apply workload CatalogService helm chart
@@ -179,7 +179,7 @@ jobs: # using jobs so they each run in parallel
             echo "*** Load credentials for AKS Cluster $aksClusterName in $aksClusterResourceGroup"
             az aks get-credentials --name $aksClusterName --resource-group $aksClusterResourceGroup --overwrite-existing
 
-            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages/backgroundprocessor.txt"
+            $fullContainerImageName = Get-Content -Path "$(Pipeline.Workspace)/containerImages-backgroundprocessor/backgroundprocessor.txt"
             echo "*** Retrieved full container image name from artifact - $fullContainerImageName"
 
             # get helm chart version from the previous build step (stored in pipeline artifacts)
