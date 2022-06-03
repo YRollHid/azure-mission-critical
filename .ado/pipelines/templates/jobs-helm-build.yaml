@@ -18,6 +18,7 @@ jobs:
 
   - task: PowerShell@2
     displayName: 'Validate helm chart'
+    continueOnError: true    # We just want this to show as a warning in ADO, not a pipeline failure
     inputs:
       workingDirectory: ${{ parameters.workingDirectory }}
       targetType: inline
