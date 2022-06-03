@@ -28,11 +28,14 @@ jobs:
           throw "*** Error - ${{ parameters.chartName }} does not exist in ${{ parameters.workingDirectory }}"
         }
 
+        # download kubeaudit
         Invoke-WebRequest https://github.com/Shopify/kubeaudit/releases/download/0.17.0/kubeaudit_0.17.0_linux_amd64.tar.gz -outfile kubeaudit.tar.gz
         tar xvzf kubeaudit.tar.gz 
 
+        # generate yaml manifest 
         helm template ${{ parameters.chartName }} > "${{ parameters.chartName}}.temp.yaml"
 
+        # run kubeaudit against the yaml manifest generated out of this helm chart
         ./kubeaudit all -f "${{ parameters.chartName}}.temp.yaml"
 
 
