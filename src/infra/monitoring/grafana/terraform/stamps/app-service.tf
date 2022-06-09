@@ -33,8 +33,8 @@ resource "azurerm_linux_web_app" "appservice" {
     "GF_DATABASE_PASSWORD" = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.postgres_password[each.key].id})"
     "GF_DATABASE_SSL_MODE" = "require"
 
-    "GF_SECURITY_CSRF_ADDITIONAL_HEADERS" = "X-Forwarded-Host"
-    "GF_SECURITY_CSRF_TRUSTED_ORIGINS"    = "https://${var.frontdoor_fqdn}"
+    "GF_SECURITY_CSRF_ADDITIONAL_HEADERS" = "X-Forwarded-Host X-Forwarded-Proto X-Forwarded-Port"
+    "GF_SECURITY_CSRF_TRUSTED_ORIGINS"    = "https://${var.frontdoor_fqdn} ${var.frontdoor_fqdn}"
 
     "GRAFANA_USERNAME"           = "alwayson"
     "GRAFANA_PASSWORD"           = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.grafana_password[each.key].id})"
