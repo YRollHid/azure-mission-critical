@@ -13,7 +13,7 @@ namespace AlwaysOn.CatalogService
 {
     public static class CatalogServiceHelpers
     {
-        public static int DefaultApiVersionMajor = 1;
+        public static int DefaultApiVersionMajor = 2;
         public static int DefaultApiVersionMinor = 0;
 
         /// <summary>
