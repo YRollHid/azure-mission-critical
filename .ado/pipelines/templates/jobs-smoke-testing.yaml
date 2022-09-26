@@ -65,9 +65,9 @@ jobs:
           -smokeTestRetryWaitSeconds $(smokeTestRetryWaitSeconds)
 
     - task: NodeTool@0
-      displayName: 'Use Node v12 for PlayWright'
+      displayName: 'Use Node v14 for PlayWright'
       inputs:
-        versionSpec: '12.x' # Playwright requires Node.js 12 or higher
+        versionSpec: '14.x' # Playwright requires Node.js 12 or higher
 
     - task: PowerShell@2
       displayName: 'Run PlayWright UI test and capture screenshots from global endpoint'
