@@ -29,7 +29,7 @@ scale: # Horizontal Pod Autoscaler (HPA) configuration
 
 networkPolicy:
   enabled: true # Enable Network Policy (contains a default-deny policy)
-  egressRange: "10.1.0.0/18" # CIDR range for allowed egress traffic
+  egressRange: "0.0.0.0/0" # CIDR range for allowed egress traffic
 
 ingress:
   annotations: # this can be empty but has to exist
