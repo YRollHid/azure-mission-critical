@@ -1,5 +1,5 @@
 # Even though we're not building but only installing, we're still doing multi-stage because grafana does not have NPM
-FROM node:18 as builder
+FROM node:19 as builder
 
 # Copy all source files over to our working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ RUN npm install
 
 # We're using Grafana 8.3.4 now since later versions give us issues with the header settings behind Front Door. 
 # As soon as that is resolved, we'll get back on the latest version. 
-FROM grafana/grafana:9.1.2
+FROM grafana/grafana:9.2.3
 
 # In order to run unsigned plugins such as our health model panel, we need to explicitly allow them in an env variable. 
 ENV GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS="healthmodelpanel"
