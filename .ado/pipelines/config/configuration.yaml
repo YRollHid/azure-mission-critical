@@ -19,7 +19,7 @@ variables:
   - name: "chaosMeshVersion" #  chaos-mesh chart version
     value: "2.2.1"
   - name: "uiAppNodeVersion" # nodejs version for the UI app
-    value: "16.x"
+    value: "16.17.0"
 
   - name: "workloadNamespace" # K8s namespace for workload deployment
     value: "workload"
